@@ -1,0 +1,176 @@
+CREATE TABLE sinNormalizar
+(
+	id int AUTO_INCREMENT,
+	categoria varchar(50),
+	provincia varchar(50),
+	localidad varchar(50),
+	nombre varchar(50),
+	direccion varchar(50),
+	cp int,
+	documento int,
+	tipo_documento varchar(50),
+	telefono varchar(50), 
+	dominio varchar(50),
+	marca varchar(50),
+	color varchar(50),
+	PRIMARY KEY(id)
+);
+
+
+LOAD DATA LOCAL INFILE 'Personas_Vehiculos.csv'
+INTO TABLE sinNormalizar
+FIELDS TERMINATED BY ','
+-- ENCLOSED BY '"'
+OPTIONALLY ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+(categoria, provincia, localidad, nombre, direccion, cp, documento, tipo_documento, telefono, dominio, marca, color) set id=NULL;
+
+
+
+
+CREATE TABLE personas
+(
+	id int AUTO_INCREMENT,
+	id_provincia int,
+	id_localidad int,
+	nombre varchar(50),
+	direccion varchar(50),
+	cp int,
+	documento int,
+	id_tipo_documento int,
+	telefono varchar(50),
+	PRIMARY KEY(id)
+);
+
+
+CREATE TABLE vehiculos
+(
+	id int AUTO_INCREMENT,
+	id_categoria int,
+	dominio varchar(50),
+	id_marca int,
+	id_color int,
+	PRIMARY KEY(id)
+);
+
+
+
+
+
+CREATE TABLE categorias
+(
+	id_categoria int AUTO_INCREMENT,
+	categoria varchar(50),
+	PRIMARY KEY(id_categoria)
+);
+
+CREATE TABLE localidades
+(
+	id_localidad int AUTO_INCREMENT,
+	localidad varchar(50),
+	PRIMARY KEY(id_localidad)
+);
+
+CREATE TABLE provincias
+(
+	id_provincia int AUTO_INCREMENT,
+	provincia varchar(50),
+	PRIMARY KEY(id_provincia)
+);
+
+CREATE TABLE tipo_documento
+(
+	id_tipo_documento int AUTO_INCREMENT,
+	tipo_documento varchar(50),
+	PRIMARY KEY(id_tipo_documento)
+);
+
+
+CREATE TABLE marcas
+(
+	id_marca int AUTO_INCREMENT,
+	marca varchar(50),
+	PRIMARY KEY(id_marca)
+);
+
+CREATE TABLE colores
+(
+	id_color int AUTO_INCREMENT,
+	color varchar(50),
+	PRIMARY KEY(id_color)
+);
+
+
+
+select distinct sinNormalizar.categoria from sinNormalizar;
+
+
+INSERT INTO categorias (categoria) select distinct sinNormalizar.categoria from sinNormalizar;
+
+INSERT INTO localidades (localidad) select distinct sinNormalizar.localidad from sinNormalizar;
+
+INSERT INTO provincias (provincia) select distinct sinNormalizar.provincia from sinNormalizar;
+
+INSERT INTO tipo_documento (tipo_documento) select distinct sinNormalizar.tipo_documento from sinNormalizar;
+
+INSERT INTO marcas (marca) select distinct sinNormalizar.marca from sinNormalizar;
+
+INSERT INTO colores (color) select distinct sinNormalizar.color from sinNormalizar;
+
+
+
+
+-- ALIAS --
+
+-- VEHICULOS -> V
+
+-- PERSONAS -> P
+
+-- CATEGORIAS -> C
+
+-- sinNormalizar -> S
+
+-- MARCAS -> M
+
+-- COLORES -> Co
+
+
+
+
+
+
+
+INSERT INTO vehiculos (id_categoria, dominio, id_marca, id_color) 
+select C.id_categoria, S.dominio, M.id_marca, Co.id_color 
+FROM sinNormalizar as S 
+INNER JOIN categorias as C on S.categoria = C.categoria 
+INNER JOIN marcas as M on S.marca = M.marca 
+INNER JOIN colores as Co on S.color = Co.color;
+
+
+
+
+-- SALIDA DE DATOS PARA EL USUARIO (SIN NORMALIZAR)
+
+SELECT V.id, C.categoria, V.dominio, M.marca, Co.color 
+FROM vehiculos as V 
+INNER JOIN categorias as C on V.id_categoria = C.id_categoria 
+INNER JOIN marcas as M on V.id_marca = M.id_marca 
+INNER JOIN colores as Co on V.id_color = Co.id_color;
+
+
+
+-- SALIDA DE DATOS PARA EL USUARIO (VISTA)
+
+CREATE VIEW vehiculos_vista as 
+SELECT V.id, C.categoria, V.dominio, M.marca, Co.color 
+FROM vehiculos as V 
+INNER JOIN categorias as C on V.id_categoria = C.id_categoria 
+INNER JOIN marcas as M on V.id_marca = M.id_marca 
+INNER JOIN colores as Co on V.id_color = Co.id_color;
+
+
+
+
+-- FALTA HACER LA TABLA INNER JOIN DE LA TABLA PERSONAS --
